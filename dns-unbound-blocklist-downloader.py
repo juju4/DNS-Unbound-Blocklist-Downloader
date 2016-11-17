@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import urllib2
 import re
 import argparse
@@ -60,12 +62,13 @@ blocklists = {
 		'regex': '',
 		'file' : 'cameleon.domain',
 	},
-	'AdAway mobile ads': {
-		'id': 'adaway',
-		'url': 'http://adaway.sufficientlysecure.org/hosts.txt',
-		'regex': '',
-		'file' : 'adaway.domain',
-	},
+## down
+#	'AdAway mobile ads': {
+#		'id': 'adaway',
+#		'url': 'http://adaway.sufficientlysecure.org/hosts.txt',
+#		'regex': '',
+#		'file' : 'adaway.domain',
+#	},
 	'hpHosts ad-tracking servers': {
 		'id': 'hphosts',
 		'url': 'http://hosts-file.net/download/hosts.txt',
@@ -79,6 +82,15 @@ blocklists = {
 		'file' : 'someonewhocares.domain',
 	}
 }
+
+## exception list for blocked tld: remove any local-data configuration else conflict in unbound
+#blockedTLDs = [ ]
+blockedTLDs = [ 
+    re.compile('\.science$'),
+    re.compile('\.biz$'),
+    re.compile('\.link$'),
+    re.compile('\.gq$')
+  ]
 
 def downloadAndProcessBlocklist(url, regex, filename):
 	req = urllib2.Request(url)
@@ -114,14 +126,16 @@ IPV4_ADDR = '127.0.0.1'
 IPV6_ADDR = '::1'
 
 #sensible defaults
-location = '/etc/unbound/'
-filename = 'local-blocking-data.conf'
+location = '/etc/unbound/conf.d/'
+filename = '80local-blocking-data.conf'
 output = ""
 
 parser = argparse.ArgumentParser(description='IP blocklist downloader and importer for pf and ip tables')
 parser.add_argument('-l', '--blocklist_location',help='location to store blocklists', required=False)
 parser.add_argument('-f', '--filename',help='filename of blocklist', required=False)
 parser.add_argument('-n', '--blocklist_names',help='specify names of blocklists to download', required=False, type=lambda s: [str(item) for item in s.split(',')])
+parser.add_argument('-r', '--restart',help='restart unbound', required=False, action="store_true")
+parser.add_argument('-c', '--restartcache',help='restart unbound and preserve cache (slower)', required=False, action="store_true")
 
 args = parser.parse_args()
 
@@ -142,29 +156,42 @@ for key, value in sorted(blocklists.items()):
 
 #remove comments, duplicates and process
 output = re.sub(r'(?m)^\#.*\n?', '', output)
+output = re.sub(r'(?m)(.*)#.*\n?', '$1', output)
 listOutput = re.findall('(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', output)	
 listOutput = list(set(listOutput))
 listOutput = [x for x in listOutput if x != "127.0.0.1"]
+## unbound will complain if blacklisting a domain when zone already is
+listOutput = [x for x in listOutput if not any(regex.search(x) for regex in blockedTLDs) ]
 
 #write to file
 try:
 	with open(location+filename, 'w') as f:
 		
+		## one-line header so file can be validated on its own against unbound-checkconf
+		f.write('server:\n')
 		for item in listOutput:
 			
-			f.write('local-data: \"')
+			f.write('  local-data: \"')
 			f.write("%s" % item)
 			f.write(' A ' + IPV4_ADDR + '\"')
 			f.write('\n')
 			
-			f.write('local-data: \"')
+			f.write('  local-data: \"')
 			f.write("%s" % item)
 			f.write(' AAAA ' + IPV6_ADDR + '\"')
 			f.write('\n')
 			
+		f.write('\n')
 		f.close()
 except IOError as e:
 	print e.reason
 	
-#reload unbound configuration
-subprocess.check_call(shlex.split('/usr/sbin/service unbound restart'))
+#reload unbound configuration and preserve cache
+if args.restartcache:
+    subprocess.check_call(shlex.split('unbound-control dump_cache > /tmp/cache'))
+    subprocess.check_call(shlex.split('unbound-control reload'))
+    subprocess.check_call(shlex.split('unbound-control load_cache < /tmp/cache'))
+elif args.restart:
+    subprocess.check_call(shlex.split('unbound-control reload'))
+
+
