@@ -100,7 +100,7 @@ def downloadAndProcessBlocklist(url, regex, filename):
 
 	#download blocklist
 	try:
-		response = urllib2.urlopen(req)
+		response = urllib2.urlopen(req, timeout=10)
 		contents = response.read()
 				
 		#process blocklists
@@ -188,10 +188,13 @@ except IOError as e:
 	
 #reload unbound configuration and preserve cache
 if args.restartcache:
-    subprocess.check_call(shlex.split('unbound-control dump_cache > /tmp/cache'))
+    print('Restarting unbound and preserving cache.')
+    f = open("/tmp/cache", "w")
+    subprocess.Popen(shlex.split('unbound-control dump_cache'), stdout=f)
     subprocess.check_call(shlex.split('unbound-control reload'))
-    subprocess.check_call(shlex.split('unbound-control load_cache < /tmp/cache'))
+    subprocess.Popen(shlex.split('unbound-control load_cache'), stdin=f)
 elif args.restart:
+    print('Restarting unbound.')
     subprocess.check_call(shlex.split('unbound-control reload'))
 
 
