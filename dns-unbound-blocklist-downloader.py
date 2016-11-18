@@ -84,11 +84,27 @@ blocklists = {
 }
 
 ## exception list for blocked tld: remove any local-data configuration else conflict in unbound
+# Bad TLDs
+#       https://www.spamhaus.org/statistics/tlds/
+#       https://www.bluecoat.com/company/press-releases/blue-coat-reveals-webs-shadiest-neighborhoods
 #blockedTLDs = [ ]
 blockedTLDs = [ 
     re.compile('\.science$'),
+    re.compile('\.top$'),
+    re.compile('\.gdn$'),
+    re.compile('\.download$'),
+    re.compile('\.accountant$'),
+    re.compile('\.trade$'),
     re.compile('\.biz$'),
+    re.compile('\.bid$'),
     re.compile('\.link$'),
+    re.compile('\.zip$'),
+    re.compile('\.review$'),
+    re.compile('\.country$'),
+    re.compile('\.kim$'),
+    re.compile('\.cricket$'),
+    re.compile('\.work$'),
+    re.compile('\.party$'),
     re.compile('\.gq$')
   ]
 
