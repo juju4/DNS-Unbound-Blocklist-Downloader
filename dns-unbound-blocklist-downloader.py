@@ -32,12 +32,12 @@ blocklists = {
 		'regex': '',
 		'file' : 'malwaredomains.domain',
 	},
-	'PhishTank': {
-		'id': 'phishtank',
-		'url': 'http://data.phishtank.com/data/online-valid.csv',
-		'regex': '/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/',
-		'file' : 'phishtank.domain',
-	},
+#	'PhishTank': {
+#		'id': 'phishtank',
+#		'url': 'http://data.phishtank.com/data/online-valid.csv',
+#		'regex': '/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/',
+#		'file' : 'phishtank.domain',
+#	},
 	'MVPS': {
 		'id': 'mvps',
 		'url': 'http://winhelp2002.mvps.org/hosts.txt',
@@ -121,6 +121,8 @@ def downloadAndProcessBlocklist(url, regex, filename):
 				
 		#process blocklists
 		if regex != '':
+## travis/centos7 triggers the following (phishtank?)
+## https://stackoverflow.com/questions/3675144/regex-error-nothing-to-repeat
 			match = re.findall(regex, contents)
 			print match
 			contents = match
