@@ -188,6 +188,8 @@ try:
 		## one-line header so file can be validated on its own against unbound-checkconf
 		f.write('server:\n')
 		for item in listOutput:
+			if item == '.com.':
+				continue
 			
 			f.write('  local-data: \"')
 			f.write("%s" % item)
