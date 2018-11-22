@@ -8,12 +8,12 @@ import subprocess, shlex
 #blocklist information
 
 blocklists = {
-	'abuse.ch Feodo Tracker (Domain)': {
-		'id': 'abusefeododomain',
-		'url':  'https://feodotracker.abuse.ch/blocklist/?download=domainblocklist',
-		'regex' : '',
-		'file' : 'feodo.domain',
-	},
+#	'abuse.ch Feodo Tracker (Domain)': {
+#		'id': 'abusefeododomain',
+#		'url':  'https://feodotracker.abuse.ch/blocklist/?download=domainblocklist',
+#		'regex' : '',
+#		'file' : 'feodo.domain',
+#	},
 		'abuse.ch Zeus Tracker (Domain)': {
 		'id': 'abusezeusdomain',
 		'url':  'https://zeustracker.abuse.ch/blocklist.php?download=baddomains',
