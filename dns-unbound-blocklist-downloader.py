@@ -20,12 +20,6 @@ blocklists = {
 		'regex' : '',
 		'file' : 'zeus.domain',
 	},
-	'abuse.ch Palevo Tracker (Domain)': {
-		'id': 'abusepalevodomain',
-		'url':  'https://palevotracker.abuse.ch/blocklists.php?download=domainblocklist',
-		'regex' : '',
-		'file' : 'palevo.domain',
-	},
 	'malwaredomains.com Domain List': {
 		'id': 'malwaredomainsdomain',
 		'url': 'http://www.malwaredomainlist.com/hostslist/hosts.txt',
